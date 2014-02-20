@@ -3,6 +3,7 @@ class ContactMessagesController < BaseController
   layout 'pages'
 
 	def new
+    @destinations = ContactMessageMailer::DESTINATIONS
     @contact_message = ContactMessage.new
     if current_user
       @contact_message.name = current_user.name
