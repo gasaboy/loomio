@@ -1,4 +1,5 @@
 Loomio::Application.routes.draw do
+
   slug_regex = /[a-z0-9\-\_]*/i
   ActiveAdmin.routes(self)
 
@@ -30,15 +31,14 @@ Loomio::Application.routes.draw do
     match 'unfollow'
   end
 
-  resources :invitations, only: [:show]
-
   resources :group_requests, only: [:create, :new] do
     get :confirmation, on: :collection
   end
 
+  resources :invitations, only: [:show, :create, :destroy]
+
   resources :groups, path: 'g', only: [:create, :edit] do
     scope module: :groups do
-      resources :invitations, only: [:destroy, :new, :create]
       resources :memberships, only: [:index, :destroy, :new, :create] do
         member do
          post :make_admin
@@ -76,6 +76,7 @@ Loomio::Application.routes.draw do
 
     resources :motions,     only: [:index]
     resources :discussions, only: [:index, :new]
+    resources :invitations, only: [:new, :destroy]
   end
 
   scope module: :groups, path: 'g', slug: slug_regex do
@@ -114,6 +115,7 @@ Loomio::Application.routes.draw do
 
   resources :discussions, path: 'd', only: [:new, :edit, :create] do
     get :activity_counts, on: :collection
+    resources :invitations, only: [:new]
 
     member do
       post :update_description
@@ -161,7 +163,7 @@ Loomio::Application.routes.draw do
   end
 
   scope module: :users do
-    match '/settings',          action: 'settings', as: :user_settings
+    match '/profile',          action: 'profile', as: :profile
     scope module: :email_preferences do
       get '/email_preferences', action: 'edit',   as: :email_preferences
       put '/email_preferences', action: 'update', as: :update_email_preferences
@@ -185,18 +187,17 @@ Loomio::Application.routes.draw do
     get :thanks, on: :collection
   end
 
-  authenticated do
-    root :to => 'dashboard#show'
-  end
-
+  get '/dashboard', to: 'dashboard#show', as: 'dashboard'
   root :to => 'pages#home'
 
   scope controller: 'pages' do
     get :about
+    get :crowd
     get :privacy
     get :purpose
     get :pricing
     get :terms_of_service
+    get :third_parties
     get :browser_not_supported
   end
 

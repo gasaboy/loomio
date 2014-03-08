@@ -47,7 +47,7 @@ gem 'airbrake', '~> 3.1.14'
 gem 'fog', '~> 1.19.0'
 gem 'roadie', '~> 2.4.3'
 gem 'valid_email', '~> 0.0.4'
-gem 'font-awesome-sass-rails'
+gem "font-awesome-rails"
 gem 'rabl', '~> 0.8.6'
 gem 'sequenced', '~> 1.4.0'
 gem 'closure_tree', '~> 4.3.0'
@@ -110,6 +110,6 @@ end
 group :staging, :production do
   gem 'memcachier', '~> 0.0.2'
   gem 'dalli', '~> 2.6.4'
-  gem 'newrelic_rpm', '~> 3.5.7.59'
+  gem 'newrelic_rpm', '~> 3.7.3'
   gem 'heroku-deflater', '~> 0.5.1'
 end

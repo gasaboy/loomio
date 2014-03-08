@@ -9,15 +9,19 @@ class Translation < ActiveRecord::Base
                'Français' => 'fr',
                'Indonesian' => 'id',
                'magyar' => 'hu',
+               '日本語' => 'ja',
+               'മലയാളം' => 'ml',
                'Nederlands' => 'nl',
                'Português (Brasil)' => 'pt',
                'română' => 'ro',
-               'Tiếng Việt' => 'vi'}
+               'Tiếng Việt' => 'vi',
+               'Türkçe' => 'tr'}
 
-  EXPERIMENTAL_LANGUAGES = {'Italiano' => 'it',
-                            'മലയാളം' => 'ml',
+  EXPERIMENTAL_LANGUAGES = { 'Chinese (Mandarin)' => 'cmn',
+                            'Italiano' => 'it',
                             'తెలుగు' => 'te',
-                            'Gaelic (Irish)' => 'ga'}
+                            'Gaelic (Irish)' => 'ga',
+                            'українська мова' => 'uk'}
 
   belongs_to :translatable, polymorphic: true
   

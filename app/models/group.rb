@@ -10,7 +10,6 @@ class Group < ActiveRecord::Base
   PRIVACY_CATEGORIES = ['public', 'private', 'hidden']
   INVITER_CATEGORIES = ['members', 'admins']
   PAYMENT_PLANS = ['pwyc', 'subscription', 'manual_subscription', 'undetermined']
-
   validates_presence_of :name
   validates_inclusion_of :payment_plan, in: PAYMENT_PLANS
   validates_inclusion_of :privacy, in: PRIVACY_CATEGORIES
@@ -41,6 +40,8 @@ class Group < ActiveRecord::Base
         where(privacy: 'public').
         parents_only
 
+  scope :manual_subscription, -> { where(payment_plan: 'manual_subscription') }
+
   # Engagement (Email Template) Related Scopes
   scope :more_than_n_members, lambda { |n| where('memberships_count > ?', n) }
   scope :more_than_n_discussions, lambda { |n| where('discussions_count > ?', n) }
@@ -53,7 +54,6 @@ class Group < ActiveRecord::Base
   scope :active_discussions_since, lambda {|time|
     includes(:discussions).where('discussions.last_comment_at > ?', time)
   }
-
 
   scope :created_earlier_than, lambda {|time| where('groups.created_at < ?', time) }
 
@@ -97,7 +97,7 @@ class Group < ActiveRecord::Base
            through: :memberships,
            source: :user
 
-  has_many :pending_invitations,
+  has_many :pending_invitations, :as => :invitable,
            class_name: 'Invitation',
            conditions: {accepted_at: nil, cancelled_at: nil}
 
@@ -115,6 +115,7 @@ class Group < ActiveRecord::Base
 
   delegate :include?, :to => :users, :prefix => true
   delegate :users, :to => :parent, :prefix => true
+  delegate :members, :to => :parent, :prefix => true
   delegate :name, :to => :parent, :prefix => true
 
   paginates_per 20
@@ -168,8 +169,12 @@ class Group < ActiveRecord::Base
     self.privacy == 'hidden'
   end
 
+  def is_not_hidden?
+    !is_hidden?
+  end
+
   def parent_is_hidden?
-    parent.privacy == 'hidden'
+    parent.is_hidden?
   end
 
   def members_can_invite_members?
@@ -180,23 +185,23 @@ class Group < ActiveRecord::Base
     parent.users.sorted_by_name
   end
 
-  # would be nice if the following 4 methods were reduced to just one - is_sub_group
+  # would be nice if the following 3 methods were reduced to just one - is_subgroup
   # parent and top_level are the less nice terms
   #
+  def is_a_parent?
+    parent_id.blank?
+  end
+
   def is_top_level?
-    parent.blank?
+    is_a_parent?
   end
 
   def is_sub_group?
-    parent.present?
-  end
-
-  def is_a_parent?
-    parent.nil?
+    !is_a_parent?
   end
 
   def is_a_subgroup?
-    parent.present?
+    is_sub_group?
   end
 
   def admin_email
@@ -241,20 +246,8 @@ class Group < ActiveRecord::Base
     Membership.where(:user_id => user, :group_id => self).exists?
   end
 
-  def user_can_join? user
-    is_a_parent? || user_is_a_parent_member?(user)
-  end
-
-  def is_a_parent?
-    parent_id.nil?
-  end
-
-  def is_a_subgroup?
-    parent_id.present?
-  end
-
   def user_is_a_parent_member? user
-    user.group_membership(parent)
+    parent.members.include? user
   end
 
   def invitations_remaining

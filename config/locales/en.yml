@@ -55,9 +55,7 @@ en:
     permission_to_invite: "You do not have permission to invite new members."
     position_not_updated: "Could not update position."
     settings_not_updated: "Your settings did not get updated."
-    group_request_already_verified: "Sorry! The verification link you clicked has already been confirmed. If you haven't heard from us within 48 hours, get in touch: contact@loomio.org"
     group_request_already_accepted: "Sorry! This invitation is invalid or has already been accepted."
-    group_request_contribution: "Please select a category. This isn’t a commitment to pay, just useful information to help us design our model. Thanks!"
     group_request_invalid_token: "Sorry! This is an invalid token"
     group_private_or_not_found: "Group not found. \n\nThis group might be private. If someone gave you this link, ask them to invite you to the group."
     group_already_setup: "The group you are trying to setup already exists."
@@ -195,11 +193,11 @@ en:
 
   edit_discussion_context: "Edit discussion context"
   request_new_group: "Start a group"
-  request_new_group_details: "or wait until you are invited to one."
+  request_or_find_new_group_html: "<a href='%{new_group_link}'>Start a new group</a>, or <a href='%{existing_group_link}'>find an existing group </a>"
   empty_notifications: "You do not have any notifications yet."
   see_all_notifications: "See all notifications"
-  user_settings: "User settings"
-  email_preferences: "Email preferences"
+  profile: "Profile"
+  email_settings: "Email settings"
   sign_out: "Sign out"
   sign_in: "Log in"
   honeypot_warning: "Could not create your account. If you're using a screen reader, please make sure the last (hidden) field on the form is blank."
@@ -222,9 +220,11 @@ en:
 
   prompt_visitor_to_authenticate:
     header: "Log in or join group to participate"
-    body_html: |
-      <p>If you're a member of this group, you'll have to log in to participate.</p>
-      <p>If you're not a member, you can ask to join.</p>
+    body: "If you're a member of this group, you'll have to log in to participate."
+
+  prompt_user_to_join:
+    header: "Join the group to participate"
+    body: "To comment or vote, you need to be a member of this group."
 
   #
   # GROUP PAGE
@@ -244,7 +244,6 @@ en:
   add_new_member: "Add new member"
   invite_members_to_group: "Invite members to %{which_group}"
   remaining_invites: "remaining invites"
-  need_more_invites_html: "Need more? Loomio is in closed beta, which means we're still in development and have limited resources for user support. If you'd like to increase the size of your group %{href}."
   get_in_touch_link: "get in touch"
 
   email_members_in_group: "Email the members in %{which_group}"
@@ -633,12 +632,17 @@ en:
     invitees_placeholder: "User Name <user1@example.com>, user2@example.com"
     subject: "Please join our new Loomio group, %{group}"
     invite_people: "Invite people to your group"
+    invite_to_discussion: "Invite people to this discussion"
+    invite_to_discussion_info: "Adding people to this discussion will send them an invitation to your group. When they accept, they'll be directed to this discussion."
     select_members: "Add members from %{group_name}"
     body_editable: |
       Hey there, come make decisions with us! We're using a collaborative decision-making tool called Loomio.
+    body_editable_discussion: |
+      Hey there, come and join the discussion!
     message_body: "Invitation message"
     invites_more_help2: "<p>You can invite people to your group at any time.</p><p>You might want to invite all your members in right away, or you could start by inviting just the people you’re working most closely with.</p>"
     invitation_link: "Invitation link"
+    discussion_link: "Participate in the discussion:"
     link_help: "Click this link to join %{group} on Loomio:"
     copy: "If someone did not get their invitation email, please feel free to copy the invitation link above and give it to the recipient yourself."
     pending_invitations: 'Pending invitations'
@@ -676,6 +680,27 @@ en:
       Is it a good idea? Loomio Helper Bot wants to know what you think!
       If you’re clear about your position, click one of the icons below (hover over the decision buttons for a description of what each one means).
       You’ll be prompted to make a short statement about the reason for your decision. This makes it easy to see a summary of what everyone thinks and why. You can change your mind and edit your decision freely until the proposal closes.
+  #
+  # CONTACT PAGE
+  #
+
+  contact_page:
+    labels:
+      name:         'Your name'
+      email:        'Your email address'
+      message:      'Your message'
+      destination:  'Where shall we send your message?'
+      submit:       'Send message'
+    destinations:
+      contact:      'General enquiries'
+      tech:         'Tech support / bug reports / feature requests'
+      press:        'Media enquiries'
+      sales:        'Sales and customer enquiries'
+      translations: 'Translation enquiries'
+    messages:
+      email_html:        "Fill out this form, or send an email to <a href='mailto:%{email}'>%{email}</a>"
+      phone:        "If you'd rather speak to someone directly, you can call %{name} on %{number}"
+      social_html:       "You can also join us on <a href='%{facebook}' target='_blank'>facebook</a> and <a href='%{twitter}' target='_blank'>twitter</a>!"
 
   #
   # FORMS
@@ -719,8 +744,9 @@ en:
   new_user_form:
     create_an_account: "Create an account"
 
-  user_settings_form:
-    header: "User settings"
+  profile_form:
+    view: "View my profile"
+    profile: "Edit profile"
     picture: "Picture"
     use_avatar_kind: "Use %{kind}"
     upload_new_image: "Upload a new image"
@@ -819,6 +845,15 @@ en:
   #
 
   email:
+    to_join_discussion:
+      subject: "%{who} wants you to join a discussion on Loomio"
+      content: "You've been invited to participate in the discussion: %{discussion}"
+      message_intro: "%{who} says:"
+      link: "Join the discussion"
+    to_join_group:
+      subject: "%{member} has invited you to join %{group_name} on Loomio"
+    to_start_group:
+      subject: "Set up your new Loomio group: %{group_name}"
     user_added_to_a_group:
       subject: "%{who} has added you to %{which_group}"
       content: "%{who} has added you to %{which_group} on Loomio. Click here to go to the group:"
@@ -880,25 +915,6 @@ en:
       closing_in_24_hours: "Closing in 24 hours"
       headline: "%{author}'s proposal in %{group} is closing soon:"
       summary: "Summary"
-    to_join_group:
-      subject: "%{member} has invited you to join %{group_name} on Loomio"
-    to_start_group:
-      subject: "Set up your new Loomio group: %{group_name}"
-    trial_expiry:
-      header: "%{group_name}: Your Loomio trial is almost up."
-      hi: "Hi there,"
-      intro_html: |
-        Just a friendly reminder to let you know that your trial will expire in 5 days. We hope you're enjoying Loomio so far.
-        <p>Once the trial period runs out, you'll need to enter your payment details so your group can keep using Loomio.</p>
-        <p><a href=''>Click here</a> to set up your payment details now.</p>
-        <p>If you’ve got any questions or if there’s anything at all we can do to help your group succeed with Loomio, we’d love to hear from you.</p>
-    trial_follow_up:
-      header: "%{group_name}: How’s your Loomio trial going so far?"
-      hi: "Hi there,"
-      intro_html: |
-        Just a friendly reminder to let you know you're halfway through your trial. We hope you’re enjoying Loomio so far! If you’d like some tips about getting the most out of Loomio, <a href='/help#getting-the-most-out-of-Loomio'>have a look here.</a>
-        <p>You'll need to enter your payment information before the end of your trial to keep using Loomio. <a href=''>Click here</a> to set up your payment details now.</p>
-        <p>If you’ve got any questions or if there’s anything at all we can do to help your group succeed with Loomio, we’d love to hear from you.</p>
     verification:
       header: "You're almost done!"
       intro: "Please click this verification link to finalise your request:"

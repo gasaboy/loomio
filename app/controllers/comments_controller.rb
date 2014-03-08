@@ -14,6 +14,7 @@ class CommentsController < BaseController
     else
       DiscussionService.unlike_comment(current_user, @comment)
     end
+    @discussion = @comment.discussion
 
     render :template => "comments/comment_likes"
   end

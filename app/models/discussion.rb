@@ -6,7 +6,7 @@ class Discussion < ActiveRecord::Base
   include ReadableUnguessableUrls
 
   scope :archived, -> { where('archived_at is not null') }
-  scope :published, -> { where(archived_at: nil) }
+  scope :published, -> { where(archived_at: nil, is_deleted: false) }
 
   scope :active_since, lambda {|some_time| where('created_at >= ? or last_comment_at >= ?', some_time, some_time)}
   scope :order_by_latest_comment, order('last_comment_at DESC')
@@ -25,11 +25,13 @@ class Discussion < ActiveRecord::Base
   belongs_to :author, class_name: 'User'
   belongs_to :user, foreign_key: 'author_id' # duplicate author relationship for eager loading
   has_many :motions, :dependent => :destroy
+  has_one :current_motion, class_name: 'Motion', conditions: {'motions.closed_at' => nil}, order: 'motions.closed_at asc'
+  has_one :most_recent_motion, class_name: 'Motion', order: 'motions.created_at desc'
   has_many :votes, through: :motions
   has_many :comments, :dependent => :destroy
   has_many :comment_likes, :through => :comments, :source => :comment_votes
   has_many :commenters, :through => :comments, :source => :user, :uniq => true
-  has_many :events, :as => :eventable, :dependent => :destroy
+  has_many :events, :as => :eventable, :dependent => :destroy, include: :user
   has_many :items, class_name: 'Event', include: [{:eventable => :user}, :user], order: 'created_at ASC'
   has_many :discussion_readers
 
@@ -37,6 +39,7 @@ class Discussion < ActiveRecord::Base
   pg_search_scope :search, against: [:title, :description],
     using: {tsearch: {dictionary: "english"}}
 
+  delegate :name, :to => :group, :prefix => :group
   delegate :users, :to => :group, :prefix => :group
   delegate :full_name, :to => :group, :prefix => :group
   delegate :email, :to => :author, :prefix => :author
@@ -45,16 +48,8 @@ class Discussion < ActiveRecord::Base
 
   before_create :set_last_comment_at
 
-  def as_read_by(user)
-    if user.blank?
-      new_discussion_reader_for(nil)
-    elsif joined_to_discussion_reader?
-      joined_or_new_discussion_reader_for(user)
-    else
-      find_or_new_discussion_reader_for(user)
-    end
-  end
-
+  # don't use this.. it needs to be removed.
+  # use DiscussionService.add_comment directly
   def add_comment(author, body, options = {})
     options[:body] = body
     comment = Comment.new(options)
@@ -72,12 +67,13 @@ class Discussion < ActiveRecord::Base
     archived_at.present?
   end
 
-  def voting_motions
-    motions.voting
-  end
-
   def closed_motions
     motions.closed
+  end
+
+  def last_collaborator
+    return nil if originator.nil?
+    User.find_by_id(originator.to_i)
   end
 
   def group_users_without_discussion_author
@@ -86,10 +82,6 @@ class Discussion < ActiveRecord::Base
 
   def current_motion_closing_at
     current_motion.closing_at
-  end
-
-  def current_motion
-    voting_motions.last
   end
 
   def number_of_comments_since(time)
@@ -163,8 +155,12 @@ class Discussion < ActiveRecord::Base
     self.private == false
   end
 
+  def private
+    self.private?
+  end
+
   def private?
-    if self[:private].nil? and group.present?
+    if self[:private].nil? and group.present?  # this is some hideously unconfident code. discussions have a validation on private col
       group_default_is_private?
     else
       self[:private]
@@ -175,9 +171,6 @@ class Discussion < ActiveRecord::Base
     self[:private] = group_default_is_private? if group.present?
   end
 
-  def private
-    self.private?
-  end
 
   def group_default_is_private?
     ['hidden', 'private'].include? group.privacy
@@ -198,39 +191,6 @@ class Discussion < ActiveRecord::Base
 
   def set_last_comment_at
     self.last_comment_at ||= Time.now
-  end
-
-  def joined_or_new_discussion_reader_for(user)
-    if self[:viewer_user_id].present?
-      unless user.id == self[:viewer_user_id].to_i
-        raise "joined for wrong user"
-      end
-      DiscussionReader.load_from_joined_discussion(self)
-    else
-      new_discussion_reader_for(user)
-    end
-  end
-
-  def joined_to_discussion_reader?
-    self['joined_to_discussion_reader'] == '1'
-  end
-
-  def find_or_new_discussion_reader_for(user)
-    if self.discussion_readers.where(:user_id => user.id).exists?
-      self.discussion_readers.where(user_id: user.id).first
-    else
-      discussion_reader = self.discussion_readers.build
-      discussion_reader.discussion = self
-      discussion_reader.user = user
-      discussion_reader
-    end
-  end
-
-  def new_discussion_reader_for(user)
-    discussion_reader = DiscussionReader.new
-    discussion_reader.discussion = self
-    discussion_reader.user = user
-    discussion_reader
   end
 
   def fire_edit_title_event(user)

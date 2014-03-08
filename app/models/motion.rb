@@ -7,6 +7,7 @@ class Motion < ActiveRecord::Base
   belongs_to :user, foreign_key: 'author_id' # duplicate author relationship for eager loading
   belongs_to :outcome_author, :class_name => 'User'
   belongs_to :discussion
+  # has_one :group, through: :discussion
   has_many :votes, :dependent => :destroy, include: :user
   has_many :unique_votes, class_name: 'Vote', conditions: { age: 0 }, include: :user
   has_many :did_not_votes, :dependent => :destroy, include: :user
@@ -38,10 +39,10 @@ class Motion < ActiveRecord::Base
 
   attr_accessor :create_discussion
 
-  scope :voting, where('closed_at IS NULL').order('closed_at ASC')
+  scope :voting, where('motions.closed_at IS NULL').order('motions.closed_at ASC')
   scope :lapsed, lambda { where('closing_at < ?', Time.now) }
   scope :lapsed_but_not_closed, voting.lapsed
-  scope :closed, where('closed_at IS NOT NULL').order('closed_at DESC')
+  scope :closed, where('closed_at IS NOT NULL').order('motions.closed_at DESC')
   scope :order_by_latest_activity, -> { order('last_vote_at desc') }
 
   def grouped_unique_votes
@@ -122,6 +123,10 @@ class Motion < ActiveRecord::Base
     votes.for_user(user.id).exists?
   end
 
+  def user_has_not_voted?(user)
+    !user_has_voted?(user)
+  end
+
   def most_recent_vote_of(user)
     votes.for_user(user.id).last
   end
@@ -141,14 +146,16 @@ class Motion < ActiveRecord::Base
   end
 
   def last_vote_by_user(user)
-    votes.where(user_id: user.id).order('created_at DESC').first
+    return nil if user.nil?
+
+    votes.where(user_id: user.id, age: 0).first
   end
 
   def last_position_by_user(user)
     if vote = last_vote_by_user(user)
       vote.position
     else
-      nil
+      'unvoted'
     end
   end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140220222310) do
+ActiveRecord::Schema.define(:version => 20140227000252) do
 
   create_table "active_admin_comments", :force => true do |t|
     t.string   "resource_id",   :null => false
@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
   create_table "attachments", :force => true do |t|
     t.integer  "user_id"
     t.string   "filename"
-    t.string   "location"
+    t.text     "location"
     t.integer  "comment_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
@@ -115,8 +115,8 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
     t.integer  "user_id"
     t.string   "email"
     t.text     "message"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                                    :null => false
+    t.datetime "updated_at",                                    :null => false
     t.string   "destination", :default => "contact@loomio.org"
   end
 
@@ -183,9 +183,9 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
     t.boolean  "is_deleted",      :default => false, :null => false
     t.integer  "comments_count",  :default => 0,     :null => false
     t.integer  "items_count",     :default => 0,     :null => false
+    t.datetime "archived_at"
     t.boolean  "private"
     t.string   "key"
-    t.datetime "archived_at"
   end
 
   add_index "discussions", ["author_id"], :name => "index_discussions_on_author_id"
@@ -347,7 +347,6 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
   create_table "invitations", :force => true do |t|
     t.string   "recipient_email",                    :null => false
     t.integer  "inviter_id",                         :null => false
-    t.integer  "group_id",                           :null => false
     t.boolean  "to_be_admin",     :default => false, :null => false
     t.string   "token",                              :null => false
     t.integer  "accepted_by_id"
@@ -356,9 +355,10 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
     t.integer  "canceller_id"
     t.datetime "cancelled_at"
     t.string   "recipient_name"
+    t.integer  "invitable_id"
+    t.string   "invitable_type"
   end
 
-  add_index "invitations", ["group_id"], :name => "index_invitations_on_group_id"
   add_index "invitations", ["token"], :name => "index_invitations_on_token"
 
   create_table "membership_requests", :force => true do |t|
@@ -375,6 +375,7 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
   end
 
   add_index "membership_requests", ["email"], :name => "index_membership_requests_on_email"
+  add_index "membership_requests", ["group_id", "response"], :name => "index_membership_requests_on_group_id_and_response"
   add_index "membership_requests", ["group_id"], :name => "index_membership_requests_on_group_id"
   add_index "membership_requests", ["name"], :name => "index_membership_requests_on_name"
   add_index "membership_requests", ["requestor_id"], :name => "index_membership_requests_on_requestor_id"
@@ -479,12 +480,6 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
 
   add_index "subscriptions", ["group_id"], :name => "index_subscriptions_on_group_id"
 
-  create_table "test", :id => false, :force => true do |t|
-    t.integer "age"
-  end
-
-  add_index "test", ["age"], :name => "test_age_key", :unique => true
-
   create_table "translations", :force => true do |t|
     t.integer  "translatable_id"
     t.string   "translatable_type"
@@ -496,6 +491,7 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
   end
 
   add_index "translations", ["fields"], :name => "translations_gin_fields"
+
   create_table "users", :force => true do |t|
     t.string   "email",                                                       :default => "",         :null => false
     t.string   "encrypted_password",                           :limit => 128, :default => ""
@@ -562,7 +558,8 @@ ActiveRecord::Schema.define(:version => 20140220222310) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "statement"
-    t.integer  "age",        :default => 0, :null => false
+    t.integer  "age",              :default => 0, :null => false
+    t.integer  "previous_vote_id"
   end
 
   add_index "votes", ["motion_id", "user_id", "age"], :name => "vote_age_per_user_per_motion", :unique => true

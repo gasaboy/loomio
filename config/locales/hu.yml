@@ -28,9 +28,7 @@ hu:
     permission_to_invite: "Nincs hozzá engedélyed, hogy új tagokat hívj meg."
     position_not_updated: "Nem tudtuk megváltoztatni az álláspontodat."
     settings_not_updated: "A beállításaidat nem frissültek."
-    group_request_already_verified: "Bocs! A megerősítő hivatkozást amire klikkeltél már használták. Ha két napon belül nem jelentkezünk, írj a contact@loomio.org címre"
     group_request_already_accepted: "Bocs! Ez a meghívó érvénytelen vagy már felhasználták"
-    group_request_contribution: "Válassz egy kategóriát. Ez nem jelent kötelezettséget, csak segít nekünk kialakítani a működési modellünket. Köszi!"
     group_request_invalid_token: "Bocs! érvénytelen kód"
     group_private_or_not_found: "Nincs ilyen csoport.⏎\n⏎\nLehet, hogy ez a csoport zárt. Ha valakitől kaptad a csoport linkjét, kérd meg, hogy vegyen fel a csoportba."
     group_already_setup: "Már van ilyen csoport."
@@ -124,8 +122,6 @@ hu:
   request_new_group_details: "vagy várd meg, amíg meghívnak egybe."
   empty_notifications: "Még nincsenek értesítéseid."
   see_all_notifications: "Az összes értesítés megtekintése"
-  user_settings: "Beállítások"
-  email_preferences: "E-mail beállítások"
   sign_out: "Kijelentkezés"
   tagline: "Olyan világot teremtünk, ahol mindenki részt vehet a döntésekben és alakíthatja is azokat."
   click_to_dismiss: "Ide kattintva eltűnik ez az üzenet"
@@ -151,7 +147,6 @@ hu:
   add_new_member: "Új tag hozzáadása"
   invite_members_to_group: "Tagok meghívása a %{which_group} csoportba"
   remaining_invites: "fennmaradó meghívók"
-  need_more_invites_html: "Több kellene? A Loomio jelenleg zárt bétateszt fázisban van, vagyis még fejlesztés alatt áll és korlátozottak az erőforrásaink és a felhasználói támogatás, amit nyújtani tudunk. Ha szeretnéd növelni a csoportod létszámát, %{href}."
   get_in_touch_link: "kapcsolat"
   email_members_in_group: "E-mail küldése a(z) %{which_group} csoport tagjainak"
   subject_error: "Töltsd ki a témát"
@@ -418,11 +413,6 @@ hu:
     update_preferences: "Beállítások frissítése"
   new_user_form:
     create_an_account: "Fiók létrehozása"
-  user_settings_form:
-    header: "Beállítások"
-    picture: "Kép"
-    use_avatar_kind: "%{kind} használata"
-    upload_new_image: "Új kép feltöltése"
   group_setup:
     submit: "Megnézem a csoportom!"
   simple_form:
@@ -503,7 +493,6 @@ hu:
   approve: "Jóváhagyás"
   author: "Szerző"
   back: "Vissza"
-  by: "Szerző:"
   cancel: "Mégse"
   change: "Változtatás"
   changing: "Változtatom"
